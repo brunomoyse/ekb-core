@@ -1,0 +1,56 @@
+import { defineNuxtConfig } from 'nuxt/config'
+require('dotenv').config();
+// https://v3.nuxtjs.org/api/configuration/nuxt.config
+export default defineNuxtConfig({
+    ssr: false, // Disable Server Side rendering
+    modules: [
+        '@nuxtjs/tailwindcss',
+        '@nuxt/image-edge',
+        [
+          '@pinia/nuxt',
+          {
+            autoImports: [
+              // automatically imports `defineStore`
+              'defineStore', // import { defineStore } from 'pinia'
+              // automatically imports `defineStore` as `definePiniaStore`
+              ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
+            ],
+          },
+        ],
+    ],
+    buildModules: [
+        '@nuxt/image-edge',
+        ['@nuxt-modules/compression', {
+          // options
+        }]
+    ],
+    app: {
+        pageTransition: { name: 'page', mode: 'out-in' },
+        head: {
+            title: 'Eurasia',
+            charset: 'utf-8',
+            viewport: 'width=device-width, initial-scale=1',
+            htmlAttrs: {
+                lang: 'fr',
+            },
+            meta: [
+              // <meta name="viewport" content="width=device-width, initial-scale=1">
+              { name: 'description', content: 'Insurrance policy payment reminder. ' },
+            ],
+            script: [
+
+            ],
+            link: [
+              // <link rel="stylesheet" href="https://myawesome-lib.css">
+              //{ rel: 'stylesheet', href: 'https://awesome-lib.css' }
+            ],
+            noscript: [
+              // <noscript>Javascript is required</noscript>
+              { children: 'Javascript is required' }
+            ]
+          }
+    },
+    alias: {
+      pinia: '/node_modules/@pinia/nuxt/node_modules/pinia/dist/pinia.mjs',
+  },
+})
