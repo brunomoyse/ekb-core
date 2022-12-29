@@ -108,7 +108,11 @@
 </template>
 
 <script setup>
-    //const config = useRunTimeConfig();
+    import { useContactStore} from '@/stores/contactStore';
+    const contactStore = useContactStore();
+
+    const config = useRuntimeConfig();
+
     let contactUpdating = ref(false);
     let phoneErrorMessage = ref(null);
     let expirationDateErrorMessage = ref(null);
@@ -175,14 +179,20 @@
     };
 
     // CONTACTS
+    await contactStore.getContacts();
 
-    //const { data: contacts } = await useFetch(process.env.NUXT_PUBLIC_API_BASE_URL + '/contacts');
-    const { data: contacts } = await useFetch('http://127.0.0.1:8080/api/contacts');
+    const contacts = computed(() => contactStore.contacts);
+
+    //const { data: contacts } = await useFetch(config.apiUrl + '/contacts');
 
     const createContact = async () => {
-        const newContact = await useFetch('http://127.0.0.1:8080/api/contacts', {
+        const newContact = await useFetch(config.apiUrl + '/contacts', {
             method: 'POST',
-            body: { ...form },
+            body: {
+                ...form,
+                phone_number: convertPhoneNumberToSQL(form.phone_number),
+                expiration_date: convertDateToSQL(form.expiration_date)
+             },
         });
         resetForm();
     };
@@ -194,11 +204,19 @@
         console.log('contactId', contactId);
         if (contactId && contactId > 0) {
             contactUpdating.value = true;
-            await useFetch('http://127.0.0.1:8080/api/contacts/' + contactId, {
-                initialCache: false,
-                method: 'PATCH',
-                body: { ...form },
-            });
+            console.log('form', form);
+            const updatedContact = {
+                ...form,
+                phone_number: convertPhoneNumberToSQL(form.phone_number),
+                expiration_date: convertDateToSQL(form.expiration_date)
+            };
+            console.log('updatedContact', updatedContact);
+            await contactStore.updateContact(updatedContact);
+            //await useFetch(config.apiUrl + '/contacts/' + contactId, {
+            //    initialCache: false,
+            //    method: 'PUT',
+            //    body: { ...form },
+            //});
             contactUpdating.value = false;
             resetForm();
         }
@@ -224,7 +242,8 @@
     }
 
     const formatPhoneNumberKazakhstan = (phoneNumber) => {
-        if (phoneNumber.length !== 11) {
+        console.log('phoneNumber', phoneNumber)
+        if (phoneNumber?.length !== 11) {
             return phoneNumber;
         }
 
@@ -246,4 +265,18 @@
         return formattedDate;
     }
 
+    function convertDateToSQL(dateString) {
+        const parts = dateString.split('/');
+        const day = parts[0];
+        const month = parts[1];
+        const year = parts[2];
+        return `${year}-${month}-${day}`;
+    }
+
+    function convertPhoneNumberToSQL(phoneNumber) {
+        phoneNumber = phoneNumber.replace(/\s/g, '');
+        if (phoneNumber.length !== 11) return phoneNumber;
+        phoneNumber = '7' + phoneNumber.substr(1);
+        return phoneNumber;
+    }
 </script>
