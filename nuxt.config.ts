@@ -1,8 +1,8 @@
 import { defineNuxtConfig } from 'nuxt/config'
-require('dotenv').config();
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-    ssr: false, // Disable Server Side rendering
+    //ssr: false, // Disable Server Side rendering
+
     modules: [
         '@nuxtjs/tailwindcss',
         '@nuxt/image-edge',

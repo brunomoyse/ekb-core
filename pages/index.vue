@@ -108,6 +108,7 @@
 </template>
 
 <script setup>
+    //const config = useRunTimeConfig();
     let contactUpdating = ref(false);
     let phoneErrorMessage = ref(null);
     let expirationDateErrorMessage = ref(null);
