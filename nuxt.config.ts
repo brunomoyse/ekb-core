@@ -48,6 +48,10 @@ export default defineNuxtConfig({
 
             ],
             link: [
+              {
+                rel: 'stylesheet',
+                href: 'https://fonts.googleapis.com/icon?family=Material+Icons'
+              }
               // <link rel="stylesheet" href="https://myawesome-lib.css">
               //{ rel: 'stylesheet', href: 'https://awesome-lib.css' }
             ],

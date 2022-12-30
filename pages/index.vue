@@ -50,7 +50,7 @@
                 </div>
                 <div class="flex flex-wrap -mx-3 mb-6">
                     <div class="w-full md:w-1/1 px-3">
-                        <button :disabled="form.id && form.id > 0" @click="createContact" class="px-3 py-1 mr-2 text-white rounded-lg" :class="form.id && form.id > 0 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'">
+                        <button :disabled="form.id && form.id > 0 || !formIsValid" @click="createContact" class="px-3 py-1 mr-2 text-white rounded-lg" :class="form.id && form.id > 0 || !formIsValid ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'">
                             Add
                         </button>
                         <button @click="resetForm" class="px-3 py-1 bg-red-500 hover:bg-red-700 text-white rounded-lg">
@@ -73,7 +73,7 @@
                     -->
                     <th class="px-4 py-2">Phone number</th>
                     <th class="px-4 py-2">Expiration date</th>
-                    <th class="px-4 py-2"></th>
+                    <th class="px-4 py-2 w-40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -83,23 +83,36 @@
                     <td class="border px-4 py-2">{{ contact?.last_name }}</td>
                     <td class="border px-4 py-2">{{ contact?.policy_number }}</td>
                     -->
-                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-200' : ''">
+                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-100' : ''">
                         {{ formatPhoneNumberKazakhstan(contact?.phone_number) }}
                     </td>
-                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-200' : ''">
+                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-100' : ''">
                         {{ formatDateForKazakhstan(contact?.expiration_date) }}
                     </td>
-                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-200' : ''">
-                        <button :disabled="!formIsValid" v-if="contact.id === form.id" @click="updateContact(contact.id)" class="px-3 py-1 text-white rounded-lg" :class="formIsValid ? 'bg-blue-500 hover:bg-blue-700' : 'bg-gray-500 hover:bg-gray-700'">
-                            Save
+                    <td class="w-40 border px-4 py-2 flex justify-end" :class="contact.id === form.id ? 'bg-blue-100' : ''">
+                        <button title='Edit' v-if="form.id !== contact.id && !currentlyLoading" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons">edit</span>
                         </button>
-                        <button v-else-if="contact === form" @click="resetForm" class="px-3 py-1 bg-blue-800 hover:bg-blue-500 text-white rounded-lg">
-                            Cancel
-                        </button>
-                        <button v-else @click="loadForm(contact)" class="px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white rounded-lg">
-                            Edit
+                        <button title='Send' v-if="form.id !== contact.id && !currentlyLoading" @click="sendReminder(contact)" class="w-12 h-12 bg-transparent text-green-300 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons" :class="loading.sending && form.id === contact.id ? 'animate-spin' : ''">
+                                {{ loading.sending ? 'autorenew' : 'send' }}
+                            </span>
                         </button>
 
+                        <button title='Delete' v-if="form.id !== contact.id && !currentlyLoading" @click="deleteContact(contact)" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons" :class="loading.deleting && form.id === contact.id ? 'animate-spin' : ''">
+                                {{ loading.sending ? 'autorenew' : 'delete' }}
+                            </span>
+                        </button>
+
+                        <button title='Save' v-if="form.id === contact.id && !currentlyLoading" @click="updateContact(contact.id)" :disabled="!formIsValid" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons" :class="loading.updating && form.id === contact.id ? 'animate-spin' : ''">
+                                {{ loading.updating ? 'autorenew' : 'save' }}
+                            </span>
+                        </button>
+                        <button title='Cancel' v-if="form.id === contact.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons">cancel</span>
+                        </button>
                     </td>
                 </tr>
             </tbody>
@@ -110,10 +123,9 @@
 <script setup>
     import { useContactStore} from '@/stores/contactStore';
     const contactStore = useContactStore();
-
     const config = useRuntimeConfig();
 
-    let contactUpdating = ref(false);
+    let currentlyLoading = ref(false);
     let phoneErrorMessage = ref(null);
     let expirationDateErrorMessage = ref(null);
 
@@ -126,6 +138,14 @@
         //policy_number: null,
         phone_number: null,
         expiration_date: null,
+        last_sent_at: null,
+    });
+
+    const loading = reactive({
+        adding: false,
+        updating: false,
+        deleting: false,
+        sending: false,
     });
 
     const formIsValid = computed(() => {
@@ -159,6 +179,10 @@
         return true;
     });
 
+    const isEditing = computed(() => {
+        return form.id !== null;
+    });
+
     const loadForm = (selectedContact) => {
         resetForm();
         form.id = selectedContact.id;
@@ -183,43 +207,76 @@
 
     const contacts = computed(() => contactStore.contacts);
 
-    //const { data: contacts } = await useFetch(config.apiUrl + '/contacts');
-
     const createContact = async () => {
-        const newContact = await useFetch(config.apiUrl + '/contacts', {
-            method: 'POST',
-            body: {
-                ...form,
-                phone_number: convertPhoneNumberToSQL(form.phone_number),
-                expiration_date: convertDateToSQL(form.expiration_date)
-             },
-        });
-        resetForm();
-    };
-
-    const updateContact = async (contactId) => {
-        if (contactUpdating.value) {
+        if (currentlyLoading.value) {
             return;
         }
-        console.log('contactId', contactId);
-        if (contactId && contactId > 0) {
-            contactUpdating.value = true;
-            console.log('form', form);
-            const updatedContact = {
+        if (formIsValid) {
+            currentlyLoading.value = true;
+            loading.adding = true;
+            const newContact = {
                 ...form,
                 phone_number: convertPhoneNumberToSQL(form.phone_number),
                 expiration_date: convertDateToSQL(form.expiration_date)
             };
-            console.log('updatedContact', updatedContact);
-            await contactStore.updateContact(updatedContact);
-            //await useFetch(config.apiUrl + '/contacts/' + contactId, {
-            //    initialCache: false,
-            //    method: 'PUT',
-            //    body: { ...form },
-            //});
-            contactUpdating.value = false;
+            await contactStore.createContact(newContact);
+            currentlyLoading.value = false;
+            loading.adding = false;
             resetForm();
         }
+    };
+
+    const updateContact = async (contact) => {
+        if (currentlyLoading.value) {
+            return;
+        }
+        if (formIsValid && contact.id && contact.id > 0) {
+            currentlyLoading.value = true;
+            loading.updating = true;
+            const updatedContact = {
+                ...form,
+                id: contact.id,
+                phone_number: convertPhoneNumberToSQL(form.phone_number),
+                expiration_date: convertDateToSQL(form.expiration_date)
+            };
+            await contactStore.updateContact(updatedContact);
+            currentlyLoading.value = false;
+            loading.updating = false;
+            resetForm();
+        }
+    };
+
+    const deleteContact = async (contact) => {
+        if (currentlyLoading.value) {
+            return;
+        }
+        if (formIsValid && contactId && contactId > 0) {
+            currentlyLoading.value = true;
+            loading.deleting = true;
+            await contactStore.deleteContact(contact);
+            currentlyLoading.value = false;
+            loading.deleting = false;
+            resetForm();
+        }
+    };
+
+    const sendReminder = async (contact) => {
+        if (currentlyLoading.value) {
+            return;
+        }
+        currentlyLoading.value = true;
+        loading.sending = true;
+        contactStore.updateContact({
+            last_sent_at: new Date()
+        });
+        const contactSent = await useFetch(config.public.apiUrl + '/payReminder/' + contact.id, {
+                method: 'POST',
+                initialCache: false,
+        });
+        await contactStore.updateContact(contactSent);
+        currentlyLoading.value = false;
+        loading.sending = false;
+        resetForm();
     };
 
     // UTILS
@@ -242,7 +299,6 @@
     }
 
     const formatPhoneNumberKazakhstan = (phoneNumber) => {
-        console.log('phoneNumber', phoneNumber)
         if (phoneNumber?.length !== 11) {
             return phoneNumber;
         }
@@ -280,3 +336,17 @@
         return phoneNumber;
     }
 </script>
+<style>
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
