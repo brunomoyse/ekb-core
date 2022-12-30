@@ -28,7 +28,15 @@ export const useContactStore = defineStore('contacts', {
 
         },
         async createContact (contact) {
-            this.contacts.push(contact);
+            let newContactId = await useFetch('http://localhost:8080/api' + '/contacts', {
+                method: 'POST',
+                body: JSON.stringify(contact),
+                initialCache: false,
+            });
+            this.contacts.push({
+                ...contact,
+                id: newContactId
+            });
             this.contacts = this.contacts.sort((a, b) => {
                 const dateA = new Date(a.expiration_date);
                 const dateB = new Date(b.expiration_date);
@@ -36,18 +44,16 @@ export const useContactStore = defineStore('contacts', {
                 if (dateA > dateB) return 1;
                 return 0;
             });
-            await useFetch('http://localhost:8080/api' + '/contacts', {
-                method: 'POST',
-                body: JSON.stringify(contact),
-                initialCache: false,
-            });
+
         },
         async deleteContact (contact) {
             let indexToRemove = this.contacts.findIndex(c => c.id === contact.id);
-            this.contacts = this.contacts.splice(indexToRemove, 1);
-            await useFetch('http://localhost:8080/api' + '/contacts/' + contact.id, {
-                method: 'DELETE',
-            });
+            if (indexToRemove !== -1) {
+                this.contacts.splice(indexToRemove, 1);
+                await useFetch('http://localhost:8080/api' + '/contacts/' + contact.id, {
+                    method: 'DELETE',
+                });
+            }
         },
     }
 });

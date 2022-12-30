@@ -90,24 +90,33 @@
                         {{ formatDateForKazakhstan(contact?.expiration_date) }}
                     </td>
                     <td class="w-40 border px-4 py-2 flex justify-end" :class="contact.id === form.id ? 'bg-blue-100' : ''">
-                        <button title='Edit' v-if="form.id !== contact.id && !currentlyLoading" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                        <button title='Edit' v-if="form.id !== contact.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">edit</span>
                         </button>
-                        <button title='Send' v-if="form.id !== contact.id && !currentlyLoading" @click="sendReminder(contact)" class="w-12 h-12 bg-transparent text-green-300 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons" :class="loading.sending && form.id === contact.id ? 'animate-spin' : ''">
-                                {{ loading.sending ? 'autorenew' : 'send' }}
+                        <button title='Send' v-if="form.id !== contact.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300 hover:text-gray-500'">
+                            <span v-if="loading.sending && loading.contactId === contact.id" class="material-icons animate-spin">
+                                autorenew
+                            </span>
+                            <span v-else class="material-icons">
+                                send
                             </span>
                         </button>
 
-                        <button title='Delete' v-if="form.id !== contact.id && !currentlyLoading" @click="deleteContact(contact)" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons" :class="loading.deleting && form.id === contact.id ? 'animate-spin' : ''">
-                                {{ loading.sending ? 'autorenew' : 'delete' }}
+                        <button title='Delete' v-if="form.id !== contact.id" @click="toggleDeleteDialog(contact)" :disabled="currentlyLoading" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span v-if="loading.deleting && loading.contactId === contact.id" class="material-icons animate-spin">
+                                autorenew
+                            </span>
+                            <span v-else class="material-icons">
+                                delete
                             </span>
                         </button>
 
-                        <button title='Save' v-if="form.id === contact.id && !currentlyLoading" @click="updateContact(contact.id)" :disabled="!formIsValid" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons" :class="loading.updating && form.id === contact.id ? 'animate-spin' : ''">
-                                {{ loading.updating ? 'autorenew' : 'save' }}
+                        <button title='Save' v-if="form.id === contact.id && !currentlyLoading" @click="updateContact(contact.id)" :disabled="!formIsValid || currentlyLoading" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span v-if="loading.updating && loading.contactId === contact.id" class="material-icons animate-spin">
+                                autorenew
+                            </span>
+                            <span v-else class="material-icons">
+                                save
                             </span>
                         </button>
                         <button title='Cancel' v-if="form.id === contact.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
@@ -117,6 +126,7 @@
                 </tr>
             </tbody>
         </table>
+        <DeteleDialog v-if="deleteDialog" @close="toggleDeleteDialog" @delete="deleteContact(contactToDelete)" />
     </div>
 </template>
 
@@ -124,8 +134,10 @@
     import { useContactStore} from '@/stores/contactStore';
     const contactStore = useContactStore();
     const config = useRuntimeConfig();
-
     let currentlyLoading = ref(false);
+    let deleteDialog = ref(false);
+    let contactToDelete = ref(null);
+
     let phoneErrorMessage = ref(null);
     let expirationDateErrorMessage = ref(null);
 
@@ -142,11 +154,25 @@
     });
 
     const loading = reactive({
+        contactId: null,
         adding: false,
         updating: false,
         deleting: false,
         sending: false,
     });
+
+    const isPossibleToSend = (contact) => {
+        const lastSentAt = contact.last_sent_at;
+        if (!lastSentAt) {
+            return true;
+        }
+
+        const lastSentAtDate = new Date(lastSentAt);
+        const now = new Date();
+        const diff = now.getTime() - lastSentAtDate.getTime();
+        const diffInHours = diff / (1000 * 3600);
+        return diffInHours >= 24;
+    };
 
     const formIsValid = computed(() => {
         // Copier les données du formulaire
@@ -200,6 +226,7 @@
         //form.policy_number = null;
         form.phone_number = null;
         form.expiration_date = null;
+        form.last_sent_at = null;
     };
 
     // CONTACTS
@@ -233,6 +260,7 @@
         if (formIsValid && contact.id && contact.id > 0) {
             currentlyLoading.value = true;
             loading.updating = true;
+            loading.id = contact.id;
             const updatedContact = {
                 ...form,
                 id: contact.id,
@@ -242,6 +270,7 @@
             await contactStore.updateContact(updatedContact);
             currentlyLoading.value = false;
             loading.updating = false;
+            loading.id = null;
             resetForm();
         }
     };
@@ -250,7 +279,7 @@
         if (currentlyLoading.value) {
             return;
         }
-        if (formIsValid && contactId && contactId > 0) {
+        if (formIsValid && contact.id && contact.id > 0) {
             currentlyLoading.value = true;
             loading.deleting = true;
             await contactStore.deleteContact(contact);
@@ -266,21 +295,37 @@
         }
         currentlyLoading.value = true;
         loading.sending = true;
-        contactStore.updateContact({
+        loading.contactId = contact.id;
+
+        const contactSent = await useFetch(config.public.apiUrl + '/payReminder/' + contact.id, {
+            method: 'POST',
+            initialCache: false,
+        });
+        await contactStore.updateContact({
+            ...contact,
             last_sent_at: new Date()
         });
-        const contactSent = await useFetch(config.public.apiUrl + '/payReminder/' + contact.id, {
-                method: 'POST',
-                initialCache: false,
-        });
-        await contactStore.updateContact(contactSent);
-        currentlyLoading.value = false;
-        loading.sending = false;
-        resetForm();
+        form.id = null;
+        setTimeout(() => {
+            currentlyLoading.value = false;
+            loading.sending = false;
+            loading.contactId = null;
+            resetForm();
+        }, 1000);
+    };
+
+    // DIALOGS
+    const toggleDeleteDialog = (contact) => {
+        if (contact) {
+            deleteDialog.value = true;
+            contactToDelete.value = contact;
+        } else {
+            deleteDialog.value = false;
+            contactToDelete.value = null;
+        }
     };
 
     // UTILS
-
     const formatDateForKazakhstan = (dateString) => {
         let date = new Date(dateString);
 
@@ -321,7 +366,7 @@
         return formattedDate;
     }
 
-    function convertDateToSQL(dateString) {
+    const convertDateToSQL = (dateString) => {
         const parts = dateString.split('/');
         const day = parts[0];
         const month = parts[1];
@@ -329,7 +374,7 @@
         return `${year}-${month}-${day}`;
     }
 
-    function convertPhoneNumberToSQL(phoneNumber) {
+    const convertPhoneNumberToSQL = (phoneNumber) => {
         phoneNumber = phoneNumber.replace(/\s/g, '');
         if (phoneNumber.length !== 11) return phoneNumber;
         phoneNumber = '7' + phoneNumber.substr(1);
@@ -337,16 +382,16 @@
     }
 </script>
 <style>
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
