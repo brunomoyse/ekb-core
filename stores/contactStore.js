@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-//const config = useRuntimeConfig();
+const config = useRuntimeConfig();
 
 export const useContactStore = defineStore('contacts', {
     state: () => ({
@@ -7,7 +7,7 @@ export const useContactStore = defineStore('contacts', {
     }),
     actions: {
         async getContacts () {
-            const { data: contacts } = await useFetch('http://localhost:8080/api' + '/contacts');
+            const { data: contacts } = await useFetch(config.public.apiUrl + '/contacts');
             this.contacts = contacts;
         },
         async updateContact (contact) {
@@ -20,7 +20,7 @@ export const useContactStore = defineStore('contacts', {
                 if (dateA > dateB) return 1;
                 return 0;
             });
-            await useFetch('http://localhost:8080/api' + '/contacts/' + contact.id, {
+            await useFetch(config.public.apiUrl + '/contacts/' + contact.id, {
                 method: 'PUT',
                 body: JSON.stringify(contact),
                 initialCache: false,
@@ -28,7 +28,7 @@ export const useContactStore = defineStore('contacts', {
 
         },
         async createContact (contact) {
-            let newContactId = await useFetch('http://localhost:8080/api' + '/contacts', {
+            let newContactId = await useFetch(config.public.apiUrl + '/contacts', {
                 method: 'POST',
                 body: JSON.stringify(contact),
                 initialCache: false,
@@ -50,7 +50,7 @@ export const useContactStore = defineStore('contacts', {
             let indexToRemove = this.contacts.findIndex(c => c.id === contact.id);
             if (indexToRemove !== -1) {
                 this.contacts.splice(indexToRemove, 1);
-                await useFetch('http://localhost:8080/api' + '/contacts/' + contact.id, {
+                await useFetch(config.public.apiUrl + '/contacts/' + contact.id, {
                     method: 'DELETE',
                 });
             }
