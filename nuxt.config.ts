@@ -1,7 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-    ssr: false, // Disable Server Side rendering
+    ssr: false,
     runtimeConfig: {
       // The private keys which are only available within server-side
       apiSecret: '123',

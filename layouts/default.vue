@@ -12,9 +12,10 @@
                             <source srcSet="/img/lpc_logo_resized.webp" type="image/webp" />
                             -->
                             <nuxt-img
-                                src="/img/eurasia.png"
+                                src="/img/eurasia-logo.svg"
                                 alt="Logo Eurasia"
-                                height="52px"
+                                height="47.47px"
+                                width="180px"
                             />
                         </picture>
                     </nuxt-link>
