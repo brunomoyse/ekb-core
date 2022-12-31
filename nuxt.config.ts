@@ -7,7 +7,8 @@ export default defineNuxtConfig({
       apiSecret: '123',
       // Keys within public, will be also exposed to the client-side
       public: {
-        apiUrl: process.env.API_URL
+        apiUrl: process.env.API_URL,
+        isDemo: process.env.IS_DEMO,
       }
     },
     modules: [

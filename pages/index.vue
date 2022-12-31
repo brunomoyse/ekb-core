@@ -93,7 +93,7 @@
                         <button title='Edit' v-if="form.id !== contact.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">edit</span>
                         </button>
-                        <button title='Send' v-if="form.id !== contact.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300 hover:text-gray-500'">
+                        <button title='Send' v-if="form.id !== contact.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300'">
                             <span v-if="loading.sending && loading.contactId === contact.id" class="material-icons animate-spin">
                                 autorenew
                             </span>
@@ -162,6 +162,9 @@
     });
 
     const isPossibleToSend = (contact) => {
+        if (config.public.isDemo) {
+            return false;
+        }
         const lastSentAt = contact.last_sent_at;
         if (!lastSentAt) {
             return true;
