@@ -52,6 +52,7 @@ export const useContactStore = defineStore('contacts', {
                 this.contacts.splice(indexToRemove, 1);
                 await useFetch(config.public.apiUrl + '/contacts/' + contact.id, {
                     method: 'DELETE',
+                    key: contact.id,
                 });
             }
         },
