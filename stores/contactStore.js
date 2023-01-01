@@ -1,4 +1,6 @@
 import { defineStore } from 'pinia';
+//import { useTokenStore } from '@/stores/tokenStore';
+//const tokenStore = useTokenStore();
 const config = useRuntimeConfig();
 
 export const useContactStore = defineStore('contacts', {
@@ -7,7 +9,7 @@ export const useContactStore = defineStore('contacts', {
     }),
     actions: {
         async getContacts () {
-            const { data: contacts } = await useFetch(config.public.apiUrl + '/contacts');
+            const { data: contacts } = await useApi(config.public.apiUrl + '/contacts');
             this.contacts = contacts;
         },
         async updateContact (contact) {

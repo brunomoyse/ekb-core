@@ -33,28 +33,30 @@
                 </div>
                 -->
                 <!-- Block 3 -->
-                <div class="flex flex-wrap -mx-3 mb-6">
-                    <div class="w-full md:w-1/2 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-phone-number">
-                            Phone number
-                        </label>
-                        <input v-model="form.phone_number" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-phone-number" type="text">
+                <form @submit.prevent="createContact">
+                    <div class="flex flex-wrap -mx-3 mb-6">
+                        <div class="w-full md:w-1/2 px-3">
+                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-phone-number">
+                                Tелефона
+                            </label>
+                            <input v-model="form.phone_number" placeholder="87771231212" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-phone-number" type="text">
+                        </div>
+                        <div class="w-full md:w-1/2 px-3">
+                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-expiration-date">
+                                Срок действия
+                            </label>
+                            <input v-model="form.expiration_date" placeholder="31/12/2000" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-expiration-date" type="text">
+                        </div>
                     </div>
-                    <div class="w-full md:w-1/2 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-expiration-date">
-                            Expiration date
-                        </label>
-                        <input v-model="form.expiration_date" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-expiration-date" type="text">
-                    </div>
+                </form>
 
-                </div>
                 <div class="flex flex-wrap -mx-3 mb-6">
                     <div class="w-full md:w-1/1 px-3">
                         <button :disabled="form.id && form.id > 0 || !formIsValid" @click="createContact" class="px-3 py-1 mr-2 text-white rounded-lg" :class="form.id && form.id > 0 || !formIsValid ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'">
-                            Add
+                            Добавить
                         </button>
                         <button @click="resetForm" class="px-3 py-1 bg-red-500 hover:bg-red-700 text-white rounded-lg">
-                            Reset
+                            Сбросить
                         </button>
 
                     </div>
@@ -71,8 +73,8 @@
                     <th class="px-4 py-2">Last name</th>
                     <th class="px-4 py-2">Policy Number</th>
                     -->
-                    <th class="px-4 py-2">Phone number</th>
-                    <th class="px-4 py-2">Expiration date</th>
+                    <th class="px-4 py-2">Tелефона</th>
+                    <th class="px-4 py-2">Срок действия</th>
                     <th class="px-4 py-2 w-40"></th>
                 </tr>
             </thead>
@@ -131,6 +133,7 @@
 </template>
 
 <script setup>
+
     import { useContactStore} from '@/stores/contactStore';
     const contactStore = useContactStore();
     const config = useRuntimeConfig();

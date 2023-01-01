@@ -31,11 +31,11 @@
         </div>
         <!-- horizontal line -->
         <hr class="border-1 border-black-400 pt-4">
-        <footer class="text-center lg:text-left text-xs">
-            <div class="text-gray-700 text-center p-4">
-                developed by:
-                <a class="text-gray-800 hover:text-red-600" target="_blank" href="https://brunomoyse.be/">@bmoyse</a>
-            </div>
+        <footer class="text-center text-sm">
+            <label class="text-gray-400 text-sm text-center p-4">
+                Разработано
+                <a class="text-gray-500 text-sm hover:text-red-600" target="_blank" href="https://brunomoyse.be/">@bmoyse</a>
+            </label>
         </footer>
     </div>
 </template>
