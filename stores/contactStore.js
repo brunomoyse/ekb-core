@@ -1,7 +1,4 @@
 import { defineStore } from 'pinia';
-//import { useTokenStore } from '@/stores/tokenStore';
-//const tokenStore = useTokenStore();
-const config = useRuntimeConfig();
 
 export const useContactStore = defineStore('contacts', {
     state: () => ({
@@ -11,6 +8,7 @@ export const useContactStore = defineStore('contacts', {
         async getContacts () {
             const { data: contacts } = await useApi(import.meta.env.VITE_API_URL + '/contacts');
             this.contacts = contacts;
+            console.log('this.contacts get', this.contacts);
         },
         async updateContact (contact) {
             let indexToUpdate = this.contacts.findIndex(c => c.id === contact.id);
@@ -22,23 +20,29 @@ export const useContactStore = defineStore('contacts', {
                 if (dateA > dateB) return 1;
                 return 0;
             });
-            await useFetch(config.public.apiUrl + '/contacts/' + contact.id, {
+            await useApi(import.meta.env.VITE_API_URL + '/contacts/' + contact.id, {
                 method: 'PUT',
                 body: JSON.stringify(contact),
                 initialCache: false,
             });
 
         },
-        async createContact (contact) {
-            let newContactId = await useFetch(config.public.apiUrl + '/contacts', {
+        async createContact (form) {
+            console.log('contacts 1', this.contacts);
+            const newId = await useApi(import.meta.env.VITE_API_URL + '/contacts', {
                 method: 'POST',
-                body: JSON.stringify(contact),
+                body: JSON.stringify(form),
                 initialCache: false,
             });
-            this.contacts.push({
+
+            console.log('contacts 2', this.contacts);
+            const newContact = {
                 ...contact,
                 id: newContactId
-            });
+            };
+            console.log('contacts 3', this.contacts);
+            this.contacts.push(newContact);
+            console.log('contacts', this.contacts);
             this.contacts = this.contacts.sort((a, b) => {
                 const dateA = new Date(a.expiration_date);
                 const dateB = new Date(b.expiration_date);
@@ -52,9 +56,9 @@ export const useContactStore = defineStore('contacts', {
             let indexToRemove = this.contacts.findIndex(c => c.id === contact.id);
             if (indexToRemove !== -1) {
                 this.contacts.splice(indexToRemove, 1);
-                await useFetch(config.public.apiUrl + '/contacts/' + contact.id, {
+                await useApi(import.meta.env.VITE_API_URL + '/contacts/' + contact.id, {
                     method: 'DELETE',
-                    key: contact.id,
+                    key: contact.id.toString(),
                 });
             }
         },

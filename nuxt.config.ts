@@ -2,15 +2,6 @@ import { defineNuxtConfig } from 'nuxt/config'
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
     ssr: false,
-    runtimeConfig: {
-      // The private keys which are only available within server-side
-      apiSecret: '123',
-      // Keys within public, will be also exposed to the client-side
-      public: {
-        apiUrl: process.env.API_URL,
-        isDemo: process.env.IS_DEMO,
-      }
-    },
     modules: [
         '@nuxtjs/tailwindcss',
         '@nuxt/image-edge',

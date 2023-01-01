@@ -136,7 +136,7 @@
 
     import { useContactStore} from '@/stores/contactStore';
     const contactStore = useContactStore();
-    const config = useRuntimeConfig();
+
     let currentlyLoading = ref(false);
     let deleteDialog = ref(false);
     let contactToDelete = ref(null);
@@ -165,14 +165,9 @@
     });
 
     const isPossibleToSend = (contact) => {
-        if (config.public.isDemo) {
-            return false;
-        }
+        if (import.meta.env.VITE_IS_DEMO) return false;
         const lastSentAt = contact.last_sent_at;
-        if (!lastSentAt) {
-            return true;
-        }
-
+        if (!lastSentAt) return true;
         const lastSentAtDate = new Date(lastSentAt);
         const now = new Date();
         const diff = now.getTime() - lastSentAtDate.getTime();
@@ -303,7 +298,7 @@
         loading.sending = true;
         loading.contactId = contact.id;
 
-        const contactSent = await useFetch(config.public.apiUrl + '/payReminder/' + contact.id, {
+        const contactSent = await useApi(import.meta.env.VITE_API_URL + '/payReminder/' + contact.id, {
             method: 'POST',
             initialCache: false,
         });
