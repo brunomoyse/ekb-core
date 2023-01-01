@@ -14,6 +14,7 @@
             id="username"
             type="text"
             placeholder="Имя пользователя"
+            autocomplete="username"
             v-model="form.username"
           />
         </div>
@@ -26,6 +27,7 @@
             id="password"
             type="password"
             placeholder="Пароль"
+            autocomplete="current-password"
             v-model="form.password"
           />
         </div>
@@ -53,15 +55,20 @@
     async function login() {
         const res = await useFetch(import.meta.env.VITE_API_URL + '/login', {
           method: 'POST',
+          initialCache: false,
           body: JSON.stringify({
             username: form.username,
             password: form.password,
           }),
           headers: { 'Content-Type': 'application/json' },
         })
-        let data = unref(res.data);
-        const token = data.access_token;
-        window.localStorage.setItem('auth_token', token);
-        router.push({ path: "/" });
+        if (res) {
+            let data = unref(res.data);
+            const token = data.access_token;
+            if (token) {
+                window.localStorage.setItem('auth_token', token);
+                router.push({ path: "/" });
+            }
+        }
     }
 </script>

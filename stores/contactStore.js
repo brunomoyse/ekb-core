@@ -9,7 +9,7 @@ export const useContactStore = defineStore('contacts', {
     }),
     actions: {
         async getContacts () {
-            const { data: contacts } = await useApi(config.public.apiUrl + '/contacts');
+            const { data: contacts } = await useApi(import.meta.env.VITE_API_URL + '/contacts');
             this.contacts = contacts;
         },
         async updateContact (contact) {

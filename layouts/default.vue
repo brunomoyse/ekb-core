@@ -7,10 +7,6 @@
                 <div class="flex items-center justify-center flex-wrap">
                     <nuxt-link class="flex items-center flex-shrink-0 mr-6 cursor-pointer" to="/">
                         <picture>
-                            <!--
-                            <source srcSet="/img/lpc_logo_resized.avif" type="image/avif" />
-                            <source srcSet="/img/lpc_logo_resized.webp" type="image/webp" />
-                            -->
                             <nuxt-img
                                 src="/img/eurasia-logo.svg"
                                 alt="Logo Eurasia"
@@ -36,16 +32,25 @@
                 Разработано
                 <a class="text-gray-500 text-sm hover:text-red-600" target="_blank" href="https://brunomoyse.be/">@bmoyse</a>
             </label>
+            <label class="text-gray-400 text-sm text-center p-4" v-if="$route.name !== 'login'">
+                <a class="text-gray-500 text-sm hover:text-red-600" @click="logout">logout</a>
+            </label>
+
         </footer>
     </div>
 </template>
 
 <script setup>
     import { ref  } from 'vue';
+    const router = useRouter();
 
     let menu = ref(false);
     const toggleDropdownMenu = () => {
         menu.value = !menu.value;
         console.log(menu.value);
+    }
+    const logout = () => {
+        localStorage.removeItem('auth_token');
+        router.push({ path: "/login" });
     }
 </script>
