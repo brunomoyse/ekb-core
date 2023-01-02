@@ -1,22 +1,19 @@
-import { FetchOptions } from "ohmyfetch";
-import { useTokenStore } from '@/stores/tokenStore';
-
-const apiRoute: string = import.meta.env.VITE_API_URL;
+const apiRoute = import.meta.env.VITE_API_URL;
 
 export const useToken = () => {
     return window.localStorage.getItem('auth_token');
 };
 
-export const useApi = async (url: string, options?: FetchOptions) => {
+export const useApi = async (url, options) => {
 	let token = useToken();
 
-	const headers: HeadersInit = {
+	const headers = {
 		Accept: "application/json",
 		"Authorization": "Bearer " + token,
 		...options?.headers
 	};
 
-	const opts: FetchOptions = options ? (({ headers, ...opts }) => opts)(options) : null;
+	const opts = options ? (({ headers, ...opts }) => opts)(options) : null;
 
 	const baseURL = !options?.baseURL ? apiRoute : options.baseURL;
 

@@ -2,61 +2,29 @@
     <div>
         <!-- Adding contact form-->
         <div class="mx-auto grid grid-cols-1">
-            <form @submit.prevent="submitForm">
-                <!-- Block 1 -->
-                <!--
-                <div class="flex flex-wrap -mx-3 mb-6">
-                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
-                            First Name
-                        </label>
-                        <input v-model="form.first_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text">
-                        <p class="text-red-500 text-xs italic">Please fill out this field.</p>
-                    </div>
-                    <div class="w-full md:w-1/2 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-                            Last Name
-                        </label>
-                        <input v-model="form.last_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text">
-                    </div>
-                </div>
-                -->
-                <!-- Block 2 -->
-                <!--
+            <form @submit.prevent="createContact">
                 <div class="flex flex-wrap -mx-3 mb-6">
                     <div class="w-full md:w-1/2 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-policy-number">
-                            Insurance policy number
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-phone-number">
+                            Контактные телефоны Страхователя
                         </label>
-                        <input v-model="form.policy_number" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-policy-number" type="text">
+                        <input v-model="form.phone_number" placeholder="81234567890" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-phone-number" type="text">
+                    </div>
+                    <div class="w-full md:w-1/2 px-3">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-expiration-date">
+                            Дата окончания договора
+                        </label>
+                        <input v-model="form.contract_end_date" placeholder="31.12.2010" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-expiration-date" type="text">
                     </div>
                 </div>
-                -->
-                <!-- Block 3 -->
-                <form @submit.prevent="createContact">
-                    <div class="flex flex-wrap -mx-3 mb-6">
-                        <div class="w-full md:w-1/2 px-3">
-                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-phone-number">
-                                Tелефона
-                            </label>
-                            <input v-model="form.phone_number" placeholder="87771231212" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-phone-number" type="text">
-                        </div>
-                        <div class="w-full md:w-1/2 px-3">
-                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-expiration-date">
-                                Срок действия
-                            </label>
-                            <input v-model="form.expiration_date" placeholder="31/12/2000" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-expiration-date" type="text">
-                        </div>
-                    </div>
-                </form>
 
                 <div class="flex flex-wrap -mx-3 mb-6">
-                    <div class="w-full md:w-1/1 px-3">
-                        <button :disabled="form.id && form.id > 0 || !formIsValid" @click="createContact" class="px-3 py-1 mr-2 text-white rounded-lg" :class="form.id && form.id > 0 || !formIsValid ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'">
-                            Добавить
-                        </button>
-                        <button @click="resetForm" class="px-3 py-1 bg-red-500 hover:bg-red-700 text-white rounded-lg">
+                    <div class="w-full md:w-1/1 px-3 flex justify-end">
+                        <button type="reset" @click="resetForm" class="px-3 mr-2 py-1 bg-gray-500 hover:bg-gray-700 text-white rounded-lg">
                             Сбросить
+                        </button>
+                        <button type="submit" :disabled="form?.id && form?.id > 0 || !formIsValid" @click="createContact" class="px-3 py-1 text-white rounded-lg" :class="form?.id && form?.id > 0 || !formIsValid ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'">
+                            Добавить
                         </button>
 
                     </div>
@@ -68,35 +36,25 @@
         <table class="table-auto w-full text-left">
             <thead>
                 <tr class="bg-gray-300">
-                    <!--
-                    <th class="px-4 py-2">First name</th>
-                    <th class="px-4 py-2">Last name</th>
-                    <th class="px-4 py-2">Policy Number</th>
-                    -->
-                    <th class="px-4 py-2">Tелефона</th>
-                    <th class="px-4 py-2">Срок действия</th>
+                    <th class="px-4 py-2">Контактные телефоны Страхователя</th>
+                    <th class="px-4 py-2">Дата окончания договора</th>
                     <th class="px-4 py-2 w-40"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="bg-white" v-for="contact in contacts">
-                    <!--
-                    <td class="border px-4 py-2">{{ contact?.first_name }}</td>
-                    <td class="border px-4 py-2">{{ contact?.last_name }}</td>
-                    <td class="border px-4 py-2">{{ contact?.policy_number }}</td>
-                    -->
-                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-100' : ''">
-                        {{ formatPhoneNumberKazakhstan(contact?.phone_number) }}
+                <tr class="bg-white" v-for="contact in contactItems">
+                    <td class="border px-4 py-2" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                        {{ displayPhoneNumber(contact?.phone_number) }}
                     </td>
-                    <td class="border px-4 py-2" :class="contact.id === form.id ? 'bg-blue-100' : ''">
-                        {{ formatDateForKazakhstan(contact?.expiration_date) }}
+                    <td class="border px-4 py-2" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                        {{ displayDate(contact?.contract_end_date) }}
                     </td>
-                    <td class="w-40 border px-4 py-2 flex justify-end" :class="contact.id === form.id ? 'bg-blue-100' : ''">
-                        <button title='Edit' v-if="form.id !== contact.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                    <td class="w-40 border px-4 py-2 flex justify-end" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                        <button title='Edit' v-if="form?.id !== contact?.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">edit</span>
                         </button>
-                        <button title='Send' v-if="form.id !== contact.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300'">
-                            <span v-if="loading.sending && loading.contactId === contact.id" class="material-icons animate-spin">
+                        <button title='Send' v-if="form?.id !== contact?.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact?.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300'">
+                            <span v-if="loading.sending && loading.contactId === contact?.id" class="material-icons animate-spin">
                                 autorenew
                             </span>
                             <span v-else class="material-icons">
@@ -104,8 +62,8 @@
                             </span>
                         </button>
 
-                        <button title='Delete' v-if="form.id !== contact.id" @click="toggleDeleteDialog(contact)" :disabled="currentlyLoading" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span v-if="loading.deleting && loading.contactId === contact.id" class="material-icons animate-spin">
+                        <button title='Delete' v-if="form?.id !== contact?.id" @click="toggleDeleteDialog(contact)" :disabled="currentlyLoading" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span v-if="loading.deleting && loading.contactId === contact?.id" class="material-icons animate-spin">
                                 autorenew
                             </span>
                             <span v-else class="material-icons">
@@ -113,15 +71,15 @@
                             </span>
                         </button>
 
-                        <button title='Save' v-if="form.id === contact.id && !currentlyLoading" @click="updateContact(contact.id)" :disabled="!formIsValid || currentlyLoading" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span v-if="loading.updating && loading.contactId === contact.id" class="material-icons animate-spin">
+                        <button title='Save' v-if="form?.id === contact?.id && !currentlyLoading" @click="updateContact(contact)" :disabled="!formIsValid || currentlyLoading" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span v-if="loading.updating && loading.contactId === contact?.id" class="material-icons animate-spin">
                                 autorenew
                             </span>
                             <span v-else class="material-icons">
                                 save
                             </span>
                         </button>
-                        <button title='Cancel' v-if="form.id === contact.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                        <button title='Cancel' v-if="form?.id === contact?.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">cancel</span>
                         </button>
                     </td>
@@ -133,26 +91,19 @@
 </template>
 
 <script setup>
-
-    import { useContactStore} from '@/stores/contactStore';
+    import { useContactStore } from '@/stores/contactStore';
     const contactStore = useContactStore();
 
     let currentlyLoading = ref(false);
     let deleteDialog = ref(false);
     let contactToDelete = ref(null);
 
-    let phoneErrorMessage = ref(null);
-    let expirationDateErrorMessage = ref(null);
-
     // FORM
 
-    const form = reactive({
+    let form = reactive({
         id: null,
-        //first_name: 'Bruno',
-        //last_name: null,
-        //policy_number: null,
         phone_number: null,
-        expiration_date: null,
+        contract_end_date: null,
         last_sent_at: null,
     });
 
@@ -176,30 +127,19 @@
     };
 
     const formIsValid = computed(() => {
-        // Copier les données du formulaire
-        const expirationDate = form.expiration_date;
+        const expirationDate = form.contract_end_date;
         const phoneNumber = form.phone_number;
-
-        // Vérifier si la date est au format jj/mm/yyyy
-        const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!expirationDate || !phoneNumber) {
+            return false;
+        }
+        const dateRegex = /^(0[1-9]|1[0-9]|2[0-9]|3[01])\.(0[1-9]|1[012])\.\d\d\d\d$/;
         if (!dateRegex.test(expirationDate)) {
-            console.log('Expiration date must be in the format dd/mm/yyyy');
-            expirationDateErrorMessage = 'Expiration date must be in the format dd/mm/yyyy';
             return false;
         }
 
-        // Vérifier si le numéro de téléphone comporte 11 chiffres
         const cleanedPhoneNumber = phoneNumber.replace(/\s/g, '');
-        if (cleanedPhoneNumber.length !== 11) {
-            console.log('Phone number must be 11 digits');
-            phoneErrorMessage = 'Phone number must be 11 digits';
-            return false;
-        }
-
-        // Vérifier si les 11 chiffres du numéro de téléphone sont des entiers
-        if (!/^\d+$/.test(cleanedPhoneNumber)) {
-            console.log('Phone number must be digits only');
-            phoneErrorMessage = 'Phone number must be digits only';
+        const phoneRegex = /^\d{11}$/;
+        if (!phoneRegex.test(cleanedPhoneNumber)) {
             return false;
         }
 
@@ -207,35 +147,32 @@
     });
 
     const isEditing = computed(() => {
-        return form.id !== null;
+        return form?.id !== null;
     });
 
     const loadForm = (selectedContact) => {
         resetForm();
-        form.id = selectedContact.id;
-        //form.first_name = selectedContact.first_name;
-        //form.last_name = selectedContact.last_name;
-        //form.policy_number = selectedContact.policy_number;
-        form.phone_number = formatPhoneNumberKazakhstan(selectedContact.phone_number);
-        form.expiration_date = formatDateNormal(selectedContact.expiration_date);
+        let contactCopy = { ...selectedContact };
+        form.id = contactCopy.id;
+        form.phone_number = displayPhoneNumber(contactCopy.phone_number);
+        form.contract_end_date = displayDate(contactCopy.contract_end_date);
     };
 
     const resetForm = () => {
         form.id = null;
-        //form.first_name = null;
-        //form.last_name = null;
-        //form.policy_number = null;
         form.phone_number = null;
-        form.expiration_date = null;
+        form.contract_end_date = null;
         form.last_sent_at = null;
     };
 
     // CONTACTS
     await contactStore.getContacts();
-
-    const contacts = computed(() => contactStore.contacts);
+    const contactItems = computed(() => contactStore.contacts);
 
     const createContact = async () => {
+        if (!form.phone_number || !form.contract_end_date) {
+            return;
+        }
         if (currentlyLoading.value) {
             return;
         }
@@ -245,7 +182,7 @@
             const newContact = {
                 ...form,
                 phone_number: convertPhoneNumberToSQL(form.phone_number),
-                expiration_date: convertDateToSQL(form.expiration_date)
+                contract_end_date: convertDateToSQL(form.contract_end_date)
             };
             await contactStore.createContact(newContact);
             currentlyLoading.value = false;
@@ -266,7 +203,7 @@
                 ...form,
                 id: contact.id,
                 phone_number: convertPhoneNumberToSQL(form.phone_number),
-                expiration_date: convertDateToSQL(form.expiration_date)
+                contract_end_date: convertDateToSQL(form.contract_end_date)
             };
             await contactStore.updateContact(updatedContact);
             currentlyLoading.value = false;
@@ -327,24 +264,8 @@
     };
 
     // UTILS
-    const formatDateForKazakhstan = (dateString) => {
-        let date = new Date(dateString);
 
-        let monthNames = [
-            "янв", "фев", "мар", "апр", "май", "июн",
-            "июл", "авг", "сен", "окт", "ноя", "дек"
-        ];
-
-        let monthIndex = date.getMonth();
-
-        let monthName = monthNames[monthIndex];
-
-        let formattedDate = date.getDate() + " " + monthName + " " + date.getFullYear();
-
-        return formattedDate;
-    }
-
-    const formatPhoneNumberKazakhstan = (phoneNumber) => {
+    const displayPhoneNumber = (phoneNumber) => {
         if (phoneNumber?.length !== 11) {
             return phoneNumber;
         }
@@ -355,20 +276,21 @@
             phoneNumber.substring(9);
     }
 
-    const formatDateNormal = (dateString) => {
+    const displayDate = (dateString) => {
         let date = new Date(dateString);
 
         let day = date.getDate().toString().padStart(2, "0");
         let month = (date.getMonth() + 1).toString().padStart(2, "0");
         let year = date.getFullYear();
 
-        let formattedDate = `${day}/${month}/${year}`;
+        let formattedDate = `${day}.${month}.${year}`;
 
         return formattedDate;
     }
 
     const convertDateToSQL = (dateString) => {
-        const parts = dateString.split('/');
+        if (!dateString) return dateString;
+        const parts = dateString.split('.');
         const day = parts[0];
         const month = parts[1];
         const year = parts[2];
@@ -376,6 +298,7 @@
     }
 
     const convertPhoneNumberToSQL = (phoneNumber) => {
+        if (!phoneNumber) return phoneNumber;
         phoneNumber = phoneNumber.replace(/\s/g, '');
         if (phoneNumber.length !== 11) return phoneNumber;
         phoneNumber = '7' + phoneNumber.substr(1);

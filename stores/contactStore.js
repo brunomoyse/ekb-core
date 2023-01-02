@@ -8,44 +8,47 @@ export const useContactStore = defineStore('contacts', {
         async getContacts () {
             const { data: contacts } = await useApi(import.meta.env.VITE_API_URL + '/contacts');
             this.contacts = contacts;
-            console.log('this.contacts get', this.contacts);
         },
-        async updateContact (contact) {
-            let indexToUpdate = this.contacts.findIndex(c => c.id === contact.id);
-            this.contacts[indexToUpdate] = contact;
-            this.contacts = this.contacts.sort((a, b) => {
-                const dateA = new Date(a.expiration_date);
-                const dateB = new Date(b.expiration_date);
-                if (dateA < dateB) return -1;
-                if (dateA > dateB) return 1;
-                return 0;
-            });
-            await useApi(import.meta.env.VITE_API_URL + '/contacts/' + contact.id, {
+        async updateContact (form) {
+            const updatedContact = await useApi(import.meta.env.VITE_API_URL + '/contacts/' + form.id, {
                 method: 'PUT',
-                body: JSON.stringify(contact),
-                initialCache: false,
-            });
-
-        },
-        async createContact (form) {
-            console.log('contacts 1', this.contacts);
-            const newId = await useApi(import.meta.env.VITE_API_URL + '/contacts', {
-                method: 'POST',
                 body: JSON.stringify(form),
                 initialCache: false,
             });
 
-            console.log('contacts 2', this.contacts);
+            let indexToUpdate = this.contacts.findIndex(c => c.id === form.id);
+            this.contacts[indexToUpdate] = form;
+            this.contacts = this.contacts.sort((a, b) => {
+                const dateA = new Date(a.contract_end_date);
+                const dateB = new Date(b.contract_end_date);
+                if (dateA < dateB) return -1;
+                if (dateA > dateB) return 1;
+                return 0;
+            });
+        },
+        async createContact (contact) {
+            const newContactId = await useFetch(import.meta.env.VITE_API_URL + '/contacts', {
+                method: 'POST',
+                body: JSON.stringify(contact),
+                initialCache: false,
+                headers: {
+                    Accept: "application/json",
+                    "Authorization": "Bearer " + window.localStorage.getItem('auth_token')
+                }
+            });
+            console.log(this.contacts);
+            console.log(newContactId);
             const newContact = {
                 ...contact,
                 id: newContactId
             };
-            console.log('contacts 3', this.contacts);
+            console.log('this.contacts av', this.contacts);
             this.contacts.push(newContact);
-            console.log('contacts', this.contacts);
+            console.log('this.contacts ap', this.contacts);
+
             this.contacts = this.contacts.sort((a, b) => {
-                const dateA = new Date(a.expiration_date);
-                const dateB = new Date(b.expiration_date);
+                const dateA = new Date(a.contract_end_date);
+                const dateB = new Date(b.contract_end_date);
                 if (dateA < dateB) return -1;
                 if (dateA > dateB) return 1;
                 return 0;
