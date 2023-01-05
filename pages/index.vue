@@ -38,7 +38,8 @@
                 <tr class="bg-gray-300">
                     <th class="px-4 py-2">Контактные телефоны Страхователя</th>
                     <th class="px-4 py-2">Дата окончания договора</th>
-                    <th class="px-4 py-2 w-40"></th>
+                    <th class="px-4 py-2 w-32"></th>
+                    <th class="px-4 py-2 w-32"></th>
                 </tr>
             </thead>
             <tbody>
@@ -49,58 +50,68 @@
                     <td class="border px-4 py-2" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
                         {{ displayDate(contact?.contract_end_date) }}
                     </td>
-                    <td class="w-48 border px-4 py-2 flex justify-end" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
-                        <button title='Edit' v-if="form?.id !== contact?.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons">edit</span>
-                        </button>
-                        <button title='Send' v-if="form?.id !== contact?.id" @click="sendReminder(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact?.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300'">
-                            <span v-if="loading.sending && loading.contactId === contact?.id" class="material-icons animate-spin">
-                                autorenew
-                            </span>
-                            <span v-else class="material-icons">
-                                send
-                            </span>
-                        </button>
+                    <td class="border px-4 py-2" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                        <div class="flex justify-around" v-if="!(contact?.id === form?.id)">
+                            <button title='Send' v-if="form?.id !== contact?.id" @click="toggleSendMessageDialog(contact)" :disabled="currentlyLoading || !isPossibleToSend(contact)" class="w-12 h-12 bg-transparent font-bold py-1 px-2 rounded-full flex items-center justify-center" :class="isPossibleToSend(contact) || (loading.sending && loading.contactId === contact?.id) ? 'text-green-300 hover:text-green-500' : 'text-gray-300'">
+                                <span v-if="loading.sending && loading.contactId === contact?.id" class="material-icons animate-spin">
+                                    autorenew
+                                </span>
+                                <span v-else class="material-icons">
+                                    send
+                                </span>
+                            </button>
 
-                        <button title='Delete' v-if="form?.id !== contact?.id" @click="toggleDeleteDialog(contact)" :disabled="currentlyLoading" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span v-if="loading.deleting && loading.contactId === contact?.id" class="material-icons animate-spin">
-                                autorenew
-                            </span>
-                            <span v-else class="material-icons">
-                                delete
-                            </span>
-                        </button>
-
-                        <button title='Save' v-if="form?.id === contact?.id && !currentlyLoading" @click="updateContact(contact)" :disabled="!formIsValid || currentlyLoading" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span v-if="loading.updating && loading.contactId === contact?.id" class="material-icons animate-spin">
-                                autorenew
-                            </span>
-                            <span v-else class="material-icons">
-                                save
-                            </span>
-                        </button>
-                        <button title='Cancel' v-if="form?.id === contact?.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons">cancel</span>
-                        </button>
-
-                        <div v-if="contact?.last_message_status === 'failed'" title='Failed' class="w-12 h-12 cursor-default bg-transparent text-red-300 font-bold py-1 px-2 rounded-full flex items-center justify-center">
-                            <span class="material-icons">sms_failed</span>
+                            <div v-if="contact?.last_message_status === 'failed'" title='Failed' class="w-12 h-12 cursor-default bg-transparent text-red-300 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                                <span class="material-icons">sms_failed</span>
+                            </div>
+                            <div v-else-if="contact?.last_message_status" class="w-12 h-12 py-1 px-2 flex items-center justify-center">
+                                <nuxt-img
+                                    :src="displayStatusIcon(contact.last_message_status)"
+                                    alt="status icon"
+                                    height="16px"
+                                    width="23px"
+                                />
+                            </div>
+                            <div v-else class="w-12 h-12"></div>
                         </div>
-                        <div v-else-if="contact?.last_message_status" class="w-12 h-12 py-1 px-2 flex items-center justify-center">
-                            <nuxt-img
-                                :src="displayStatusIcon(contact.last_message_status)"
-                                alt="status icon"
-                                height="16px"
-                                width="23px"
-                            />
+                    </td>
+
+                    <td class="border px-4 py-2 " :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                        <div class="flex justify-around">
+                            <button title='Edit' v-if="form?.id !== contact?.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                                <span class="material-icons">edit</span>
+                            </button>
+
+                            <button title='Delete' v-if="form?.id !== contact?.id" @click="toggleDeleteDialog(contact)" :disabled="currentlyLoading" class="w-12 h-12 bg-transparent text-red-300 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                                <span v-if="loading.deleting && loading.contactId === contact?.id" class="material-icons animate-spin">
+                                    autorenew
+                                </span>
+                                <span v-else class="material-icons">
+                                    delete
+                                </span>
+                            </button>
+
+                            <button title='Save' v-if="form?.id === contact?.id && !currentlyLoading" @click="updateContact(contact)" :disabled="!formIsValid || currentlyLoading" class="w-12 h-12 bg-transparent text-green-400 hover:text-green-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                                <span v-if="loading.updating && loading.contactId === contact?.id" class="material-icons animate-spin">
+                                    autorenew
+                                </span>
+                                <span v-else class="material-icons">
+                                    save
+                                </span>
+                            </button>
+                            <button title='Cancel' v-if="form?.id === contact?.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                                <span class="material-icons">cancel</span>
+                            </button>
                         </div>
-                        <div v-else class="w-12 h-12"></div>
+
 
                     </td>
                 </tr>
             </tbody>
         </table>
         <DeteleDialog v-if="deleteDialog" @close="toggleDeleteDialog" @delete="deleteContact(contactToDelete)" />
+        <SendMessageDialog v-if="sendDialog" @close="toggleSendMessageDialog" @send="sendReminder(contactToSend)" />
+
     </div>
 </template>
 
@@ -110,7 +121,9 @@
 
     let currentlyLoading = ref(false);
     let deleteDialog = ref(false);
+    let sendDialog = ref(false);
     let contactToDelete = ref(null);
+    let contactToSend = ref(null);
 
     // FORM
 
@@ -130,7 +143,6 @@
     });
 
     const displayStatusIcon = (status) => {
-        console.log('status', status);
         if (status === 'sent') {
             return '/img/sent.png'
         } else if (status === 'delivered') {
@@ -289,6 +301,17 @@
             contactToDelete.value = null;
         }
     };
+
+    const toggleSendMessageDialog = (contact) => {
+        if (contact) {
+            sendDialog.value = true;
+            contactToSend.value = contact;
+        } else {
+            sendDialog.value = false;
+            contactToSend.value = null;
+        }
+    };
+
 
     // UTILS
 
