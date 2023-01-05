@@ -83,9 +83,9 @@
                             <span class="material-icons">cancel</span>
                         </button>
 
-                        <button v-if="contact?.last_message_status === 'failed'" title='Failed' class="w-12 h-12 bg-transparent text-red-300 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                        <div v-if="contact?.last_message_status === 'failed'" title='Failed' class="w-12 h-12 cursor-default bg-transparent text-red-300 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">sms_failed</span>
-                        </button>
+                        </div>
                         <div v-else-if="contact?.last_message_status" class="w-12 h-12 py-1 px-2 flex items-center justify-center">
                             <nuxt-img
                                 :src="displayStatusIcon(contact.last_message_status)"
