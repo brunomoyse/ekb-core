@@ -49,7 +49,7 @@
                     <td class="border px-4 py-2" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
                         {{ displayDate(contact?.contract_end_date) }}
                     </td>
-                    <td class="w-40 border px-4 py-2 flex justify-end" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
+                    <td class="w-48 border px-4 py-2 flex justify-end" :class="contact?.id === form?.id ? 'bg-blue-100' : ''">
                         <button title='Edit' v-if="form?.id !== contact?.id" @click="loadForm(contact)" class="w-12 h-12 bg-transparent text-blue-300 hover:text-blue-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">edit</span>
                         </button>
@@ -82,6 +82,20 @@
                         <button title='Cancel' v-if="form?.id === contact?.id && !currentlyLoading" @click="resetForm" class="w-12 h-12 bg-transparent text-red-400 hover:text-red-500 font-bold py-1 px-2 rounded-full flex items-center justify-center">
                             <span class="material-icons">cancel</span>
                         </button>
+
+                        <button v-if="contact?.last_message_status === 'failed'" title='Failed' class="w-12 h-12 bg-transparent text-red-300 font-bold py-1 px-2 rounded-full flex items-center justify-center">
+                            <span class="material-icons">sms_failed</span>
+                        </button>
+                        <div v-else-if="contact?.last_message_status" class="w-12 h-12 py-1 px-2 flex items-center justify-center">
+                            <nuxt-img
+                                :src="displayStatusIcon(contact.last_message_status)"
+                                alt="status icon"
+                                height="16px"
+                                width="23px"
+                            />
+                        </div>
+                        <div v-else class="w-12 h-12"></div>
+
                     </td>
                 </tr>
             </tbody>
@@ -115,16 +129,27 @@
         sending: false,
     });
 
+    const displayStatusIcon = (status) => {
+        console.log('status', status);
+        if (status === 'sent') {
+            return '/img/sent.png'
+        } else if (status === 'delivered') {
+            return '/img/delivered.png'
+        } else if (status === 'read') {
+            return '/img/read.png'
+        } else if (status === 'failed') {
+            return '';
+        }
+    };
+
     const isPossibleToSend = (contact) => {
         if (import.meta.env.VITE_IS_DEMO === 'true') return false;
         const lastSentAt = contact.last_sent_at;
-        console.log('lastSentAt', lastSentAt);
         if (!lastSentAt) return true;
         const lastSentAtDate = new Date(lastSentAt);
         const now = new Date();
         const diff = now.getTime() - lastSentAtDate.getTime();
         const diffInHours = diff / (1000 * 3600);
-        console.log('diffInHours >= 24;', diffInHours >= 24);
         return diffInHours >= 24;
     };
 
