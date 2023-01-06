@@ -156,13 +156,9 @@
 
     const isPossibleToSend = (contact) => {
         if (import.meta.env.VITE_IS_DEMO === 'true') return false;
-        const lastSentAt = contact.last_sent_at;
-        if (!lastSentAt) return true;
-        const lastSentAtDate = new Date(lastSentAt);
-        const now = new Date();
-        const diff = now.getTime() - lastSentAtDate.getTime();
-        const diffInHours = diff / (1000 * 3600);
-        return diffInHours >= 24;
+        if (contact?.last_sent_at !== null) {
+            return !contact.last_sent_at;
+        }
     };
 
     const formIsValid = computed(() => {
