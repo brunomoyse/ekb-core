@@ -156,9 +156,9 @@
 
     const isPossibleToSend = (contact) => {
         if (import.meta.env.VITE_IS_DEMO === 'true') return false;
-        if (contact?.last_sent_at !== null) {
-            return !contact.last_sent_at;
-        }
+        const lastSentAt = contact.last_sent_at;
+        if (!lastSentAt) return true;
+        return false;
     };
 
     const formIsValid = computed(() => {
